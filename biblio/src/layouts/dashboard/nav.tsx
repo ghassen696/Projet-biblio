@@ -1,22 +1,16 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
-
 import { useEffect } from 'react';
-
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
-
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
-
 import { varAlpha } from 'src/theme/styles';
-
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
-
-
+import IconButton from '@mui/material/IconButton';
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +20,7 @@ export type NavContentProps = {
     title: string;
     icon: React.ReactNode;
     info?: React.ReactNode;
-  }[];
+  }[]; 
   slots?: {
     topArea?: React.ReactNode;
     bottomArea?: React.ReactNode;
@@ -45,8 +39,8 @@ export function NavDesktop({
   return (
     <Box
       sx={{
-        pt: 2.5,
-        px: 2.5,
+        pt: 3.5,
+        px: 2,
         top: 0,
         left: 0,
         height: 1,
@@ -76,7 +70,6 @@ export function NavMobile({
   open,
   slots,
   onClose,
-  
 }: NavContentProps & { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
 
@@ -85,7 +78,7 @@ export function NavMobile({
       onClose();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, open, onClose]);
 
   return (
     <Drawer
@@ -112,18 +105,23 @@ export function NavMobile({
 export function NavContent({ data, slots, sx }: NavContentProps) {
   const pathname = usePathname();
 
+  // Handle Chatbot Icon Click
+  const handleChatbotClick = () => {
+    // Logic to open the chatbot, you can integrate any chatbot service here
+    console.log('Chatbot opened');
+  };
+
   return (
     <>
       <Logo />
 
       {slots?.topArea}
 
-
       <Scrollbar fillContent>
         <Box component="nav" display="flex" flex="1 1 auto" flexDirection="column" sx={sx}>
           <Box component="ul" gap={0.5} display="flex" flexDirection="column">
             {data.map((item) => {
-              const isActived = item.path === pathname;
+              const isActive = item.path === pathname;
 
               return (
                 <ListItem disableGutters disablePadding key={item.title}>
@@ -133,25 +131,38 @@ export function NavContent({ data, slots, sx }: NavContentProps) {
                     href={item.path}
                     sx={{
                       pl: 2,
-                      py: 1,
+                      py: 1.5,
                       gap: 2,
                       pr: 1.5,
-                      borderRadius: 0.75,
+                      borderRadius: 1,
                       typography: 'body2',
-                      fontWeight: 'fontWeightMedium',
-                      color: 'var(--layout-nav-item-color)',
+                      fontWeight: isActive ? 'fontWeightSemiBold' : 'fontWeightMedium',
+                      color: isActive ? 'var(--layout-nav-item-active-color)' : 'var(--layout-nav-item-color)',
                       minHeight: 'var(--layout-nav-item-height)',
-                      ...(isActived && {
-                        fontWeight: 'fontWeightSemiBold',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        bgcolor: isActive
+                          ? 'var(--layout-nav-item-hover-bg-active)'
+                          : 'var(--layout-nav-item-hover-bg)',
+                        color: 'var(--layout-nav-item-hover-color)',
+                        '& .MuiSvgIcon-root': {
+                          transform: 'scale(1.1)',
+                        },
+                      },
+                      ...(isActive && {
                         bgcolor: 'var(--layout-nav-item-active-bg)',
                         color: 'var(--layout-nav-item-active-color)',
-                        '&:hover': {
-                          bgcolor: 'var(--layout-nav-item-hover-bg)',
-                        },
                       }),
                     }}
                   >
-                    <Box component="span" sx={{ width: 24, height: 24 }}>
+                    <Box
+                      component="span"
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
                       {item.icon}
                     </Box>
 
@@ -170,6 +181,65 @@ export function NavContent({ data, slots, sx }: NavContentProps) {
 
       {slots?.bottomArea}
 
+      {/* Floating Chatbot Icon on the Left */}
+      <Box sx={{
+        position: 'fixed',
+        bottom: 20,
+        left: 20, // Positioned on the left side
+        zIndex: 1000,  // Ensure it's on top
+      }}>
+        <IconButton
+          onClick={handleChatbotClick}
+          sx={{
+            background: 'linear-gradient(45deg, #FF6F61, #FF8A00, #FFD700)', // Gradient color effect
+            color: 'white',
+            borderRadius: '50%',
+            boxShadow: 2,
+            animation: 'backgroundAnimation 6s ease infinite', // Slower animation for smoother transition
+            '&:hover': {
+              backgroundColor: 'primary.dark',
+            },
+            padding: 1.5, // Smaller size
+            width: 50, // Smaller size for the button
+            height: 50, // Smaller size for the button
+          }}
+        >
+          {/* Avatar Image as Icon */}
+          <img 
+            src="assets/images/avatar/avatar-1.webp" 
+            alt="Chatbot Avatar" 
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              objectFit: 'cover',
+            }}
+          />
+        </IconButton>
+      </Box>
+
+      {/* Adding the CSS animation for smooth color change */}
+      <style>
+        {`
+          @keyframes backgroundAnimation {
+            0% {
+              background: linear-gradient(45deg, #FF6F61, #FF8A00);
+            }
+            25% {
+              background: linear-gradient(45deg, #FF8A00, #FFD700);
+            }
+            50% {
+              background: linear-gradient(45deg, #FFD700, #FF6F61);
+            }
+            75% {
+              background: linear-gradient(45deg, #FF6F61, #FF8A00);
+            }
+            100% {
+              background: linear-gradient(45deg, #FF8A00, #FFD700);
+            }
+          }
+        `}
+      </style>
     </>
   );
 }

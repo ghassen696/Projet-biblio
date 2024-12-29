@@ -1,6 +1,7 @@
 import type { IconButtonProps } from '@mui/material/IconButton';
 
 import { useState, useCallback } from 'react';
+import { SvgColor } from 'src/components/svg-color';  // Assuming SvgColor component is already created
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -29,7 +30,6 @@ export type AccountPopoverProps = IconButtonProps & {
 
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
   const router = useRouter();
-
   const pathname = usePathname();
 
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
@@ -48,6 +48,14 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
       router.push(path);
     },
     [handleClosePopover, router]
+  );
+
+  const handleLogoutClick = useCallback(() => {
+    router.push('/sign-in');
+  }, [router]);
+
+  const icon = (name: string) => (
+    <SvgColor width="24px" height="24px" src={`/assets/icons/navbar/${name}.svg`} />
   );
 
   return (
@@ -129,7 +137,14 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Box sx={{ p: 1 }}>
-          <Button fullWidth color="error" size="medium" variant="text">
+          <Button
+            fullWidth
+            color="error"
+            size="medium"
+            variant="text"
+            onClick={handleLogoutClick}  // Handle logout on click
+            startIcon={icon('ic-lock')}  // Add icon as startIcon
+          >
             Logout
           </Button>
         </Box>
