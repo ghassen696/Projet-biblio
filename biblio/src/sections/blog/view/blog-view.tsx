@@ -3,6 +3,7 @@ import { Box, Button, Grid, Typography, Pagination, TextField, MenuItem, Select,
 import { useNavigate } from 'react-router-dom';  // Import useNavigate
 import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
+import { AddResourceModal } from './AddResourceModal';
 
 interface Book {
   _id: string;
@@ -25,6 +26,7 @@ export function BlogView() {
   const [isLoading, setIsLoading] = useState(false);
   const [totalBooks, setTotalBooks] = useState(0);
   const navigate = useNavigate();  // Initialize useNavigate hook
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -71,14 +73,26 @@ export function BlogView() {
     navigate(`/book/${book.ITEMID}`);
   };
 
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
+
   return (
     <DashboardContent>
       {/* Header */}
       <Box display="flex" alignItems="center" mb={5}>
         <Typography variant="h4" flexGrow={1}>Ressources</Typography>
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="mingcute:add-line" />}>
+        <Button
+          variant="contained"
+          color="inherit"
+          startIcon={<Iconify icon="mingcute:add-line" />}
+          onClick={handleOpenModal}  // Open the modal when clicked
+        >
           Ajouter une Ressource
         </Button>
+        <AddResourceModal
+        open={openModal}   // Pass the open state as prop
+        onClose={handleCloseModal}  // Pass the close function as prop
+      />
       </Box>
 
       {/* Filters and Search Box */}
