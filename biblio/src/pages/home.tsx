@@ -1,24 +1,25 @@
-import { Helmet } from 'react-helmet-async';
+import { Typography, Box, Alert } from '@mui/material';
+import { useAuth } from 'src/app';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+export default function HomePage() {
+  const { role, logout } = useAuth();
+    const navigate = useNavigate()
+  useEffect(() => {
+    if(role !== 'admin'){
+        alert("You do not have permission to view this page, this page is only for admins");
+         navigate('/blog');
+    }
+  }, [role, navigate])
 
-import { CONFIG } from 'src/config-global';
 
-import { OverviewAnalyticsView } from 'src/sections/overview/view';
-
-// ----------------------------------------------------------------------
-
-export default function Page() {
   return (
-    <>
-      <Helmet>
-        <title> {`Dashboard - ${CONFIG.appName}`}</title>
-        <meta
-          name="description"
-          content="The starting point for your next project with Minimal UI Kit, built on the newest version of Material-UI ©, ready to be customized to your style"
-        />
-        <meta name="keywords" content="react,material,kit,application,dashboard,admin,template" />
-      </Helmet>
-
-      <OverviewAnalyticsView />
-    </>
+    <Box>
+        <Typography variant="h4" gutterBottom>
+            Dashboard
+        </Typography>
+        {role === 'admin' && <Typography variant="h5">Welcome to Admin Dashboard</Typography>}
+        <button onClick={logout}>Logout</button>
+    </Box>
   );
 }

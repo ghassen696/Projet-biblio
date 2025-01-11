@@ -6,13 +6,13 @@ import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 
-import { _langs, _notifications } from 'src/_mock';
+import { _notifications } from 'src/_mock';
 
 import { Iconify } from 'src/components/iconify';
 
 import { Main } from './main';
+import { NavDesktop } from './nav';
 import { layoutClasses } from '../classes';
-import { NavMobile, NavDesktop } from './nav';
 import { navData } from '../config-nav-dashboard';
 import { MenuButton } from '../components/menu-button';
 import { LayoutSection } from '../core/layout-section';
@@ -59,16 +59,13 @@ export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) 
               </Alert>
             ),
             leftArea: (
-              <>
-                <MenuButton
+              <MenuButton
                   onClick={() => setNavOpen(true)}
                   sx={{
                     ml: -1,
                     [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
                   }}
                 />
-                
-              </>
             ),
             rightArea: (
               <Box gap={1} display="flex" alignItems="center">
