@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, Grid, Typography, Pagination, TextField, MenuItem, Select, InputLabel, FormControl, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate
+import { useNavigate } from 'react-router-dom';
+
+import { Box, Grid, Button, Select, MenuItem, TextField, Typography, Pagination, InputLabel, FormControl, CircularProgress } from '@mui/material';  // Import useNavigate
 import { DashboardContent } from 'src/layouts/dashboard';
+
 import { Iconify } from 'src/components/iconify';
 import { AddResourceModal } from './AddResourceModal';
 

@@ -1,16 +1,21 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
+
 import { useEffect } from 'react';
+
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import { useTheme } from '@mui/material/styles';
+import IconButton from '@mui/material/IconButton';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
+
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
+
 import { varAlpha } from 'src/theme/styles';
+
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
-import IconButton from '@mui/material/IconButton';
 
 // ----------------------------------------------------------------------
 
