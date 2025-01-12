@@ -1,21 +1,17 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
-
 import { useEffect } from 'react';
-
 import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import { useTheme } from '@mui/material/styles';
-import IconButton from '@mui/material/IconButton';
 import ListItemButton from '@mui/material/ListItemButton';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
-
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
-
 import { varAlpha } from 'src/theme/styles';
-
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
+import IconButton from '@mui/material/IconButton';
+import { ChatbotComponent } from './DialogFlowChatbot'; // Importez votre composant Chatbot ici
 import { useAuth } from 'src/app';
 
 // ----------------------------------------------------------------------
@@ -43,7 +39,7 @@ export function NavDesktop({
   const theme = useTheme();
     const { role } = useAuth();
     const navData = data.filter((item) => {
-      if(role === 'admin') return true;
+        if (role === 'admin') return true;
       return item.title === 'Resources';
     });
 
@@ -85,8 +81,8 @@ export function NavMobile({
   const pathname = usePathname();
     const { role } = useAuth();
     const navData = data.filter((item) => {
-      if(role === 'admin') return true;
-      return item.title === 'Resources';
+        if (role === 'admin') return true;
+        return item.title === 'Resources';
     });
 
   useEffect(() => {
@@ -196,66 +192,10 @@ export function NavContent({ data, slots, sx }: NavContentProps) {
       </Scrollbar>
 
       {slots?.bottomArea}
+      <ChatbotComponent />
 
-      {/* Floating Chatbot Icon on the Left */}
-      <Box sx={{
-        position: 'fixed',
-        bottom: 20,
-        left: 20, // Positioned on the left side
-        zIndex: 1000,  // Ensure it's on top
-      }}>
-        <IconButton
-          onClick={handleChatbotClick}
-          sx={{
-            background: 'linear-gradient(45deg, #FF6F61, #FF8A00, #FFD700)', // Gradient color effect
-            color: 'white',
-            borderRadius: '50%',
-            boxShadow: 2,
-            animation: 'backgroundAnimation 6s ease infinite', // Slower animation for smoother transition
-            '&:hover': {
-              backgroundColor: 'primary.dark',
-            },
-            padding: 1.5, // Smaller size
-            width: 50, // Smaller size for the button
-            height: 50, // Smaller size for the button
-          }}
-        >
-          {/* Avatar Image as Icon */}
-          <img 
-            src="assets/images/avatar/avatar-1.webp" 
-            alt="Chatbot Avatar" 
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              objectFit: 'cover',
-            }}
-          />
-        </IconButton>
-      </Box>
-
-      {/* Adding the CSS animation for smooth color change */}
-      <style>
-        {`
-          @keyframes backgroundAnimation {
-            0% {
-              background: linear-gradient(45deg, #FF6F61, #FF8A00);
-            }
-            25% {
-              background: linear-gradient(45deg, #FF8A00, #FFD700);
-            }
-            50% {
-              background: linear-gradient(45deg, #FFD700, #FF6F61);
-            }
-            75% {
-              background: linear-gradient(45deg, #FF6F61, #FF8A00);
-            }
-            100% {
-              background: linear-gradient(45deg, #FF8A00, #FFD700);
-            }
-          }
-        `}
-      </style>
+     
+     
     </>
   );
 }
