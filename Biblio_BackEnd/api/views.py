@@ -4,8 +4,10 @@ from rest_framework import status
 from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime, timedelta
-from rest_framework.response import Response
-from rest_framework import status
+from pydantic import BaseModel, ValidationError
+from typing import List
+import csv
+import io
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017')
 db = client['Biblio']
@@ -261,3 +263,77 @@ class AddReservationAPI(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+from typing import Optional
+
+# Pydantic model for validation (adjust the fields as per your schema)
+class ResourceModel(BaseModel):
+    BIBID: str
+    ITEMID: str
+    Code_barre: Optional[str] = None
+    D_CREATION: Optional[str] = None
+    D_MODIF: Optional[str] = None
+    Cote: Optional[str] = None
+    Inventaire: Optional[str] = None
+    Titre: Optional[str] = None
+    Auteur: Optional[str] = None
+    Staff_Note: Optional[str] = None
+    ISBN_A: Optional[str] = None
+    Item_class: Optional[str] = None
+    Nb_Page: Optional[str] = None
+    Date_edition: Optional[str] = None
+    Editeur: Optional[str] = None
+    Prix: Optional[str] = None
+
+class AddResourcesBulk(APIView):
+    def post(self, request):
+        # Check if file is part of request
+        if 'file' not in request.FILES:
+            return Response({"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        csv_file = request.FILES['file']
+        
+        # Parse CSV file content
+        try:
+            csv_content = csv_file.read().decode('utf-8')
+            csv_reader = csv.DictReader(io.StringIO(csv_content))
+            resources = list(csv_reader)
+            print(f"CSV Parsed Content: {resources}")  # Log parsed content for debugging
+        except Exception as e:
+            return Response({"error": f"CSV parsing error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate and process resources
+        valid_resources = []
+        errors = []
+
+        for i, resource in enumerate(resources):
+            # Use Pydantic's validation to handle optional fields
+            try:
+                # Replace empty fields with None, so Pydantic can handle them correctly
+                cleaned_resource = {k: (v if v != '' else None) for k, v in resource.items()}
+                valid_resource = ResourceModel(**cleaned_resource).dict()
+                valid_resources.append(valid_resource)
+            except ValidationError as e:
+                errors.append({"row": i + 1, "error": e.errors()})
+        
+        if errors:
+            print(f"Validation Errors: {errors}")  # Log errors for debugging
+
+        # Insert valid resources into the database
+        if valid_resources:
+            try:
+                result = collection.insert_many(valid_resources)
+                print(f"Insert Result: {result.inserted_ids}")  # Log inserted IDs for debugging
+            except Exception as e:
+                return Response({"error": f"Database insertion failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(
+            {
+                "message": "Bulk upload completed.",
+                "success": len(valid_resources),
+                "errors": errors,
+            },
+            status=status.HTTP_201_CREATED,
+        )

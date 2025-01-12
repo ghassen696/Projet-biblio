@@ -3,7 +3,7 @@ import { Box, Button, Grid, Typography, Pagination, TextField, MenuItem, Select,
 import { useNavigate } from 'react-router-dom';  // Import useNavigate
 import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
-import { AddResourceModal } from './AddResourceModal';
+import { AddResourceCSVModal } from './AddResourceModal';
 
 interface Book {
   _id: string;
@@ -89,7 +89,7 @@ export function BlogView() {
         >
           Ajouter une Ressource
         </Button>
-        <AddResourceModal
+        <AddResourceCSVModal
         open={openModal}   // Pass the open state as prop
         onClose={handleCloseModal}  // Pass the close function as prop
       />
