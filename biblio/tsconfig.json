@@ -21,7 +21,8 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"],
+  "include": ["src", "src/layouts/dashboard/df-messenger.d.ts"  // Add this line to explicitly include your type declaration file
+],
   "exclude": ["node_modules"],
   "references": [
     {
