@@ -16,6 +16,7 @@ import { varAlpha } from 'src/theme/styles';
 
 import { Logo } from 'src/components/logo';
 import { Scrollbar } from 'src/components/scrollbar';
+import { useAuth } from 'src/app';
 
 // ----------------------------------------------------------------------
 
@@ -25,7 +26,7 @@ export type NavContentProps = {
     title: string;
     icon: React.ReactNode;
     info?: React.ReactNode;
-  }[]; 
+  }[];
   slots?: {
     topArea?: React.ReactNode;
     bottomArea?: React.ReactNode;
@@ -40,6 +41,11 @@ export function NavDesktop({
   layoutQuery,
 }: NavContentProps & { layoutQuery: Breakpoint }) {
   const theme = useTheme();
+    const { role } = useAuth();
+    const navData = data.filter((item) => {
+      if(role === 'admin') return true;
+      return item.title === 'Resources';
+    });
 
   return (
     <Box
@@ -62,7 +68,7 @@ export function NavDesktop({
         ...sx,
       }}
     >
-      <NavContent data={data} slots={slots} />
+      <NavContent data={navData} slots={slots} />
     </Box>
   );
 }
@@ -77,6 +83,11 @@ export function NavMobile({
   onClose,
 }: NavContentProps & { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
+    const { role } = useAuth();
+    const navData = data.filter((item) => {
+      if(role === 'admin') return true;
+      return item.title === 'Resources';
+    });
 
   useEffect(() => {
     if (open) {
@@ -100,7 +111,7 @@ export function NavMobile({
         },
       }}
     >
-      <NavContent data={data} slots={slots} />
+      <NavContent data={navData} slots={slots} />
     </Drawer>
   );
 }
