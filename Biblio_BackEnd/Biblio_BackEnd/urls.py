@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import LibraryResourcesAPI,add_resource,LibraryResourceDetailAPI,UpdateResourceAPI, GetReservationsAPI,ReservationsAPI
+from api.views import LibraryResourcesAPI,AddReservationAPI,add_resource,LibraryResourceDetailAPI,UpdateResourceAPI, GetReservationsAPI,ReservationsAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,5 +25,7 @@ urlpatterns = [
     path('api/resources/<int:pk>/', UpdateResourceAPI.as_view(), name='update-resource'),
     path('api/resources/<int:ITEMID>/reservations/', ReservationsAPI.as_view(), name='reservations-list'),
     path('api/add-resource/', add_resource.as_view(), name='add_resource'),
+    path('api/reservations/<int:ITEMID>/', AddReservationAPI.as_view(), name='add_reservation'),
+
 
 ]

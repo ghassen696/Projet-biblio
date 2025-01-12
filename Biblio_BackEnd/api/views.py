@@ -209,3 +209,55 @@ class add_resource(APIView):
             return Response({"message": "Resource added successfully", "id": str(result.inserted_id)}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+from datetime import datetime
+
+class AddReservationAPI(APIView):
+    def post(self, request, ITEMID):
+        try:
+            user_id = request.data.get("user_id")
+            start_datetime = request.data.get("start_datetime")
+            end_datetime = request.data.get("end_datetime")
+
+            # Validate inputs
+            if not user_id or not start_datetime or not end_datetime:
+                return Response({"error": "All fields are required (user_id, start_datetime, end_datetime)."}, 
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            start_datetime = datetime.fromisoformat(start_datetime)
+            end_datetime = datetime.fromisoformat(end_datetime)
+
+            if start_datetime >= end_datetime:
+                return Response({"error": "start_datetime must be before end_datetime."}, 
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # Check for reservation conflicts
+            conflict = reservations_collection.find_one({
+                "ITEMID": ITEMID,
+                "status": "reserved",
+                "$or": [
+                    {"start_datetime": {"$lt": end_datetime, "$gte": start_datetime}},
+                    {"end_datetime": {"$gt": start_datetime, "$lte": end_datetime}},
+                    {"start_datetime": {"$lte": start_datetime}, "end_datetime": {"$gte": end_datetime}}
+                ]
+            })
+
+            if conflict:
+                return Response({"error": "The resource is already reserved during this time."}, 
+                                status=status.HTTP_409_CONFLICT)
+
+            # Create reservation
+            reservation = {
+                "user_id": user_id,
+                "ITEMID": ITEMID,
+                "start_datetime": start_datetime,
+                "end_datetime": end_datetime,
+                "status": "reserved"
+            }
+            result = reservations_collection.insert_one(reservation)
+
+            return Response({"message": "Reservation created successfully.", "id": str(result.inserted_id)}, 
+                            status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Button, Grid, Paper } from '@mui/material';
 import { EditBookModal } from './EditBookModel'; // Import the modal component
 import { ReservationsModal } from './ReservationModal'; // New Reservations Modal component
+import ReservationFormModal from "./ReservationFormModal"; // Import du composant ReservationFormModal
 
 interface Book {
   _id: string;
@@ -34,7 +35,8 @@ interface Reservation {
 export function BookDetailView() {
   const { id } = useParams();
   const [book, setBook] = useState<Book | null>(null);
-  
+  const [isModalOpen, setModalOpen] = useState(false); // État pour gérer l'ouverture de la modal
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -98,7 +100,8 @@ export function BookDetailView() {
         alert(`Error: ${errorMessage}`);
       });
   };
-
+  const handleOpenModal = () => setModalOpen(true); // Ouvrir la modal
+  const handleCloseModal = () => setModalOpen(false); // Fermer la modal
   return (
     <Box sx={{ padding: 4, backgroundColor: '#f4f4f4', borderRadius: 2 }}>
       {isLoading ? (
@@ -166,6 +169,13 @@ export function BookDetailView() {
                 >
                   Check Reservations
                 </Button>
+                <Button
+              variant="contained"
+              sx={{ mt: 2, ml: 2 }}
+              onClick={handleOpenModal} // Afficher la modal au clic
+            >
+              Réserver
+            </Button>
               </Box>
             </Grid>
           </Grid>
@@ -184,6 +194,13 @@ export function BookDetailView() {
             onClose={closeReservationsModal}
             ITEMID={book.ITEMID}
           />
+          {book && (
+        <ReservationFormModal
+          book={book}
+          open={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
         </>
       ) : (
         <Typography variant="h6" color="textSecondary" align="center">Book not found</Typography>

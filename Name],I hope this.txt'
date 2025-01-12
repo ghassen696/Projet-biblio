@@ -1,0 +1,48 @@
+[33mcommit 31df9e633c774a8ff88884ed2f2caa49b3ee3e01[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: ghassen <ghassen.gagui@gmail.com>
+Date:   Sun Jan 12 14:32:07 2025 +0100
+
+    chatbot
+
+[33mcommit 991c07b64af9efdfb152ff256d8d8bd30c16a346[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: ghassen <ghassen.gagui@gmail.com>
+Date:   Sat Jan 11 21:26:02 2025 +0100
+
+    Merge branch-1 into main and resolve .pyc conflicts
+
+[33mcommit 576a0e6e87658a35d03c48b9e73c78fa1cd77fa3[m
+Merge: a18b8ba2 bae33ad9
+Author: ghassen <ghassen.gagui@gmail.com>
+Date:   Sat Jan 11 21:25:08 2025 +0100
+
+    Remove .pyc files from tracking
+
+[33mcommit a18b8ba25a8f98ac24abb84319dbe2c6c763c016[m
+Author: ghassen <ghassen.gagui@gmail.com>
+Date:   Sat Jan 11 21:22:34 2025 +0100
+
+    modifs
+
+[33mcommit bae33ad976a69a48c22d9aceb2db4f30d5f11895[m[33m ([m[1;31morigin/branch-1[m[33m)[m
+Author: ghassen <ghassen.gagui@gmail.com>
+Date:   Sat Jan 11 20:45:00 2025 +0100
+
+    added new features
+
+[33mcommit 7bb7bfa4f01ccaba575bef45455e80b9f0d36ae6[m[33m ([m[1;32mbranch-1[m[33m)[m
+Author: ghassen <ghassen.gagui@gmail.com>
+Date:   Sun Dec 29 20:55:26 2024 +0100
+
+    Refactor: Update layout components, add new BookDetailPage and related sections
+
+[33mcommit 4262a67bb38702230cb548122d161d59c9022b8a[m
+Author: ghassen <ghassen.gagui@gmail.com>
+Date:   Mon Dec 23 17:40:07 2024 +0100
+
+    Initial commit: React project setup
+
+[33mcommit 3047313f5c37df2fc336404fa7f42e10df38ac26[m
+Author: Ghassen.gagui <95880449+ghassen696@users.noreply.github.com>
+Date:   Mon Dec 23 17:37:35 2024 +0100
+
+    Initial commit

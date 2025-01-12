@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle,InputAdornment, DialogContent, DialogActions, Button, Typography, Table, TableHead, TableRow, TableCell, TableBody, Paper, TextField, MenuItem, Select, InputLabel, FormControl, Pagination, IconButton } from '@mui/material';
 import { FaArrowUp, FaArrowDown } from 'react-icons/fa';  // Font Awesome icons
-import moment from 'moment';  // Import Moment.js
+import moment from 'moment';
 
 interface Reservation {
   _id: string;
