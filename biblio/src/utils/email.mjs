@@ -1,7 +1,7 @@
 import sgMail from '@sendgrid/mail';
 import fs from 'fs';
 
-sgMail.setApiKey('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');
+sgMail.setApiKey('');
 
 export const sendVerificationEmail = (email, token) => {
   const verificationLink = `http://localhost:5000/api/verify-email?token=${token}`;
