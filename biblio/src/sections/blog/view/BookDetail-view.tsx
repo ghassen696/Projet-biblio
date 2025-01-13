@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Button, Grid, Paper } from '@mui/material';
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+
 import { EditBookModal } from './EditBookModel'; // Import the modal component
 import { ReservationsModal } from './ReservationModal'; // New Reservations Modal component
 import ReservationFormModal from "./ReservationFormModal"; // Import du composant ReservationFormModal
@@ -41,8 +43,13 @@ export function BookDetailView() {
   const [error, setError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReservationsModalOpen, setIsReservationsModalOpen] = useState(false);
+  const [role, setRole] = useState<string | null>(null); // State to store the user's role
 
   useEffect(() => {
+    // const userRole = localStorage.getItem("role");
+    const userRole = "admin";
+
+    setRole(userRole);
     const fetchBookDetails = async () => {
       setIsLoading(true);
       setError(null);
@@ -55,7 +62,7 @@ export function BookDetailView() {
         setBook(data);
 
         // Fetch reservations for the book
-      
+
       } catch (err) {
         if (err instanceof Error) setError(err.message);
       } finally {
@@ -102,109 +109,166 @@ export function BookDetailView() {
   };
   const handleOpenModal = () => setModalOpen(true); // Ouvrir la modal
   const handleCloseModal = () => setModalOpen(false); // Fermer la modal
+  const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
+
+  const handleOpenPdfViewer = () => setIsPdfViewerOpen(true);
+  const handleClosePdfViewer = () => setIsPdfViewerOpen(false);
+
   return (
-    <Box sx={{ padding: 4, backgroundColor: '#f4f4f4', borderRadius: 2 }}>
+    <Box
+      sx={{
+        padding: 6,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 3,
+        maxWidth: '1200px',
+        margin: 'auto',
+        boxShadow: 3,
+      }}
+    >
       {isLoading ? (
         <CircularProgress sx={{ display: 'block', margin: 'auto' }} />
       ) : error ? (
-        <Typography variant="h6" color="error" align="center">{error}</Typography>
+        <Typography variant="h6" color="error" align="center">
+          {error}
+        </Typography>
       ) : book ? (
         <>
-          <Grid container spacing={4} justifyContent="center">
+          <Grid container spacing={6} justifyContent="center">
             {/* Book Cover */}
-            <Grid item xs={12} sm={5} md={4}>
-              <Paper elevation={3} sx={{ padding: 2, borderRadius: 2 }}>
-                <img
-                  src="/assets/background/overlay.jpg"
-                  alt={book.Titre}
+            <Grid item xs={12} md={5}>
+              <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                <div
+                  role="button"  // Make the div interactive
+                  onClick={handleOpenPdfViewer}
+                  onKeyDown={(e) => e.key === 'Enter' && handleOpenPdfViewer()}
+                  tabIndex={0}  // Make the div focusable
                   style={{
+                    cursor: 'pointer',  // Makes it clear that the div is clickable
                     width: '100%',
                     height: 'auto',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'transform 0.3s ease',
+                    display: 'block',
+                    position: 'relative', // Ensure proper positioning
                   }}
-                />
+                >
+                  <img
+                    src="/assets/background/overlay.jpg"
+                    alt={book.Titre}
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      display: 'block',
+                    }}
+                  />
+                </div>
               </Paper>
             </Grid>
 
+
             {/* Book Details */}
-            <Grid item xs={12} sm={7} md={6}>
+            <Grid item xs={12} md={7}>
               <Box>
-                <Typography variant="h4" gutterBottom>{book.Titre}</Typography>
-                <Typography variant="h6" color="textSecondary">Auteur: {book.Auteur}</Typography>
-                <Typography variant="body1" color="textPrimary">Date Edition: {book.Date_edition || 'N/A'}</Typography>
-                <Typography variant="body1" color="textPrimary">Editeur: {book.Editeur || 'N/A'}</Typography>
-                <Typography variant="body1" color="textPrimary">ISBN: {book["ISBN-A"] || 'N/A'}</Typography>
-                <Typography variant="body1" color="textPrimary">Pages: {book["Nb Page"] || 'N/A'}</Typography>
+                <Typography variant="h3" gutterBottom color="primary">
+                  {book.Titre}
+                </Typography>
+                <Typography variant="h5" color="textSecondary" gutterBottom>
+                  Auteur: {book.Auteur}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  <strong>Date Edition:</strong> {book.Date_edition || 'N/A'}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  <strong>Editeur:</strong> {book.Editeur || 'N/A'}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  <strong>ISBN:</strong> {book['ISBN-A'] || 'N/A'}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  <strong>Pages:</strong> {book['Nb Page'] || 'N/A'}
+                </Typography>
 
-                {/* Buttons */}
-                <Button
-                  variant="contained"
-                  sx={{
-                    mt: 3,
-                    backgroundColor: '#3f51b5',
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: '#303f9f',
-                    },
-                  }}
-                  onClick={openEditModal}
-                >
-                  Edit Resource Details
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  sx={{
-                    mt: 2,
-                    ml: 2,
-                    color: '#3f51b5',
-                    borderColor: '#3f51b5',
-                    '&:hover': {
-                      borderColor: '#303f9f',
-                    },
-                  }}
-                  onClick={openReservationsModal}
-                >
-                  Check Reservations
-                </Button>
-                <Button
-              variant="contained"
-              sx={{ mt: 2, ml: 2 }}
-              onClick={handleOpenModal} // Afficher la modal au clic
-            >
-              Réserver
-            </Button>
+                <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
+                  {role === 'admin' && (
+                    <>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={openEditModal}
+                      >
+                        Edit Resource Details
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={openReservationsModal}
+                      >
+                        Check Reservations
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleOpenModal}
+                  >
+                    Réserver
+                  </Button>
+                </Box>
               </Box>
             </Grid>
           </Grid>
 
-          {/* Edit Modal */}
+          {/* Modals */}
           <EditBookModal
             open={isEditModalOpen}
             book={book}
             onClose={closeEditModal}
             onSave={handleSaveChanges}
           />
-
-          {/* Reservations Modal */}
           <ReservationsModal
             open={isReservationsModalOpen}
             onClose={closeReservationsModal}
             ITEMID={book.ITEMID}
           />
           {book && (
-        <ReservationFormModal
-          book={book}
-          open={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
+            <ReservationFormModal
+              book={book}
+              open={isModalOpen}
+              onClose={handleCloseModal}
+            />
+          )}
+           {isPdfViewerOpen && (
+            <Box
+              sx={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 9999,
+              }}
+              onClick={handleClosePdfViewer}
+            >
+              <iframe
+                title="PDF Viewer"
+                src="https://docs.google.com/viewer?url=https://uploads.mwp.mprod.getusinfo.com/uploads/sites/82/2022/12/krugman_economie.pdf&embedded=true"
+                style={{
+                  width: '80%',
+                  height: '80%',
+                  border: 'none',
+                }}
+              />
+            </Box>
+          )}
         </>
       ) : (
-        <Typography variant="h6" color="textSecondary" align="center">Book not found</Typography>
+        <Typography variant="h6" color="textSecondary" align="center">
+          Book not found
+        </Typography>
       )}
     </Box>
   );
-}
+}  

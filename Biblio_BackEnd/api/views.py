@@ -13,6 +13,7 @@ client = MongoClient('mongodb://localhost:27017')
 db = client['Biblio']
 collection = db['IHEC_Biblio']
 reservations_collection = db['UserReservations']
+users_collection = db['users']  # Replace with your collection name
 
 
 class LibraryResourcesAPI(APIView):
@@ -337,3 +338,44 @@ class AddResourcesBulk(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+class UsersAPI(APIView):
+    def get(self, request):
+        query = {}
+        name = request.GET.get('name')
+    
+
+        # Apply search filter
+        if name:
+            query['name'] = {'$regex': name, '$options': 'i'}
+
+        # Fetch users with projection for name, email, and role
+        users = users_collection.find(query, {'name': 1, 'email': 1, 'role': 1, '_id': 1})
+
+        # Pagination
+        try:
+            page = int(request.GET.get('page', 1))
+            page_size = int(request.GET.get('page_size', 10))
+            if page < 1 or page_size < 1:
+                raise ValueError
+        except ValueError:
+            return Response({"error": "Invalid page or page_size parameter."}, status=status.HTTP_400_BAD_REQUEST)
+
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        users_list = list(users)
+        for user in users_list:
+            user['_id'] = str(user['_id'])  # Convert ObjectId to string
+
+        # Handle edge case where pagination goes beyond available results
+        paginated_users = users_list[start:end]
+        if not paginated_users:
+            return Response({"error": "No users found for the requested page."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({
+            "count": len(users_list),
+            "page": page,
+            "page_size": page_size,
+            "results": paginated_users
+        })

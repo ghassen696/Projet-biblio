@@ -11,7 +11,7 @@ type UserTableHeadProps = {
   numSelected: number;
   order: 'asc' | 'desc';
   onSort: (id: string) => void;
-  headLabel: Record<string, any>[];
+  headLabel: { id: string; label: string }[];
   onSelectAllRows: (checked: boolean) => void;
 };
 
@@ -40,7 +40,7 @@ export function UserTableHead({
         {headLabel.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.align || 'left'}
+            align="left"
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel

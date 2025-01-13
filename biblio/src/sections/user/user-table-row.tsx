@@ -4,21 +4,17 @@ import Avatar from '@mui/material/Avatar';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
-import MenuList from '@mui/material/MenuList';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
-import { Label } from 'src/components/label';
+import MenuItem from '@mui/material/MenuItem';
 import { Iconify } from 'src/components/iconify';
 
 export type UserProps = {
-  id: string;
+  _id: string;
   name: string;
+  email: string;
   role: string;
-  status: string;
-  company: string;
   avatarUrl: string;
-  isVerified: boolean;
 };
 
 type UserTableRowProps = {
@@ -52,20 +48,8 @@ export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
           </Box>
         </TableCell>
 
-        <TableCell>{row.company}</TableCell>
+        <TableCell>{row.email}</TableCell>
         <TableCell>{row.role}</TableCell>
-
-        <TableCell align="center">
-          {row.isVerified ? (
-            <Iconify width={22} icon="solar:check-circle-bold" sx={{ color: 'success.main' }} />
-          ) : (
-            '-'
-          )}
-        </TableCell>
-
-        <TableCell>
-          <Label color={row.status === 'banned' ? 'error' : 'success'}>{row.status}</Label>
-        </TableCell>
 
         <TableCell align="right">
           <IconButton onClick={handleOpenPopover}>
@@ -81,12 +65,10 @@ export function UserTableRow({ row, selected, onSelectRow }: UserTableRowProps) 
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuList disablePadding>
-          <MenuItem onClick={handleClosePopover}>Edit</MenuItem>
-          <MenuItem onClick={handleClosePopover} sx={{ color: 'error.main' }}>
-            Delete
-          </MenuItem>
-        </MenuList>
+        <MenuItem onClick={handleClosePopover}>Edit</MenuItem>
+        <MenuItem onClick={handleClosePopover} sx={{ color: 'error.main' }}>
+          Delete
+        </MenuItem>
       </Popover>
     </>
   );

@@ -1,107 +1,154 @@
-import { useState, useCallback } from 'react';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
-import TableBody from '@mui/material/TableBody';
-import Typography from '@mui/material/Typography';
-import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
-import { DashboardContent } from 'src/layouts/dashboard';
-import { Iconify } from 'src/components/iconify';
-import { Scrollbar } from 'src/components/scrollbar';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Table, TableBody, TableContainer, TablePagination, Paper, TextField } from '@mui/material';
+
 import { UserTableHead } from '../user-table-head';
 import { UserTableRow } from '../user-table-row';
 
-// Mock data with basic fields that `UserTableRow` expects
-const _users = [
-  { id: '1', name: 'John Doe', role: 'Admin', status: 'Active', company: 'XYZ University', avatarUrl: '', isVerified: true },
-  { id: '2', name: 'Jane Smith', role: 'Student', status: 'Inactive', company: 'ABC College', avatarUrl: '', isVerified: false },
-  { id: '3', name: 'Mike Johnson', role: 'Librarian', status: 'Active', company: 'XYZ University', avatarUrl: '', isVerified: true },
-];
+type UserData = {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl: string; // Add avatar URL if available from API
+};
+
+type UserViewProps = {};
 
 export function UserView() {
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [orderBy, setOrderBy] = useState<string>('name');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [selected, setSelected] = useState<string[]>([]); // Track selected rows
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
 
-  const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+  useEffect(() => {
+    // Fetch user data from the backend API with search query
+    axios.get('http://127.0.0.1:8000/api/users/', {
+      params: {
+        name: searchQuery, // Pass search query to the API
+        page: page + 1, // API expects 1-based page
+        page_size: rowsPerPage,
+      }
+    })
+      .then((response) => {
+        const userData = response.data.results.map((user: any) => ({
+          ...user,
+          avatarUrl: '', // Add logic if avatar URL is available
+        }));
+        setUsers(userData);
+      })
+      .catch((error) => {
+        console.error('Error fetching user data:', error);
+      });
+  }, [searchQuery, page, rowsPerPage]); // Trigger when search query, page, or rowsPerPage changes
+
+  const handleRequestSort = (property: string) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const handleSelectAllClick = (checked: boolean) => {
+    if (checked) {
+      const newSelected = users.map((user) => user._id);
+      setSelected(newSelected);
+    } else {
+      setSelected([]);
+    }
+  };
+  
+  
+
+  const handleSelectRow = (userId: string) => {
+    const selectedIndex = selected.indexOf(userId);
+    let newSelected: string[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, userId);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else {
+      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
+    }
+    setSelected(newSelected);
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleSelectRow = (id: string) => {
-    setSelected((prevSelected) =>
-      prevSelected.includes(id) ? prevSelected.filter((item) => item !== id) : [...prevSelected, id]
-    );
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
   };
 
   return (
-    <DashboardContent>
-      <Box display="flex" alignItems="center" mb={5}>
-        <Typography variant="h4" flexGrow={1}>
-          Users
-        </Typography>
-        <Button
-          variant="contained"
-          color="inherit"
-          startIcon={<Iconify icon="mingcute:add-line" />}
-        >
-          New user
-        </Button>
-      </Box>
+    <Paper>
+      {/* Search Input */}
+      <TextField
+        label="Search by Name"
+        variant="outlined"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        fullWidth
+        margin="normal"
+      />
 
-      <Card>
-        <Scrollbar>
-          <TableContainer sx={{ overflow: 'unset' }}>
-            <Table sx={{ minWidth: 800 }}>
-              <UserTableHead
-                orderBy="name"
-                rowCount={_users.length}
-                numSelected={selected.length}
-                order="asc"
-                onSort={() => {}}
-                headLabel={[
-                  { id: 'name', label: 'Name' },
-                  { id: 'role', label: 'Role' },
-                  { id: 'company', label: 'Institute' },
-                  { id: 'status', label: 'Status' },
-                  { id: '' },
-                ]}
-                onSelectAllRows={(checked: boolean) => {
-                  setSelected(checked ? _users.map((user) => user.id) : []);
-                }}
-              />
-              <TableBody>
-                {_users
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <UserTableRow
-                      key={row.id}
-                      row={row}
-                      selected={selected.includes(row.id)}
-                      onSelectRow={() => handleSelectRow(row.id)}
-                    />
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Scrollbar>
-
-        <TablePagination
-          component="div"
-          page={page}
-          count={_users.length}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
-      </Card>
-    </DashboardContent>
+      <TableContainer>
+        <Table aria-labelledby="tableTitle" size="medium">
+          <UserTableHead
+            order={order}
+            orderBy={orderBy}
+            numSelected={selected.length}
+            rowCount={users.length}
+            onSort={handleRequestSort}
+            headLabel={[
+              { id: 'name', label: 'Name' },
+              { id: 'email', label: 'Email' },
+              { id: 'role', label: 'Role' },
+            ]}
+            onSelectAllRows={handleSelectAllClick}
+          />
+          <TableBody>
+            {users
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .sort((a, b) => {
+                if (orderBy === 'name') {
+                  return order === 'asc'
+                    ? a.name.localeCompare(b.name)
+                    : b.name.localeCompare(a.name);
+                }
+                return 0;
+              })
+              .map((user) => (
+                <UserTableRow
+                  key={user._id}
+                  row={user}
+                  selected={selected.indexOf(user._id) !== -1}
+                  onSelectRow={() => handleSelectRow(user._id)}
+                />
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={users.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </Paper>
   );
 }
