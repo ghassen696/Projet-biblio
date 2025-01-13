@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { Navigate, useRoutes, BrowserRouter, Outlet } from 'react-router-dom';
+import { lazy, Suspense,  } from 'react';
+import {  Navigate, useRoutes,BrowserRouter, Outlet } from 'react-router-dom';
 import React from 'react';
 
 import Box from '@mui/material/Box';
@@ -16,36 +16,31 @@ export const BlogPage = lazy(() => import('src/pages/blog'));
 export const BookDetailPage = lazy(() => import('src/pages/BookDetailPage'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
-export const RegisterPage = lazy(() => import('src/pages/register'));
-export const Page404 = lazy(() => import('src/pages/page-not-found'));
+export const RegisterPage = lazy(() => import('../pages/register'));
 import { useAuth } from 'src/app';
 
 // ----------------------------------------------------------------------
 
 const renderFallback = (
-    <Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
-        <LinearProgress
-            sx={{
-                width: 1,
-                maxWidth: 320,
-                bgcolor: (theme) => varAlpha(theme.vars.palette.text.primaryChannel, 0.16),
-                [`& .${linearProgressClasses.bar}`]: { bgcolor: 'text.primary' },
-            }}
-        />
-    </Box>
+<Box display="flex" alignItems="center" justifyContent="center" flex="1 1 auto">
+    <LinearProgress
+    sx={{
+        width: 1,
+        maxWidth: 320,
+        bgcolor: (theme) => varAlpha(theme.vars.palette.text.primaryChannel, 0.16),
+        [`& .${linearProgressClasses.bar}`]: { bgcolor: 'text.primary' },
+    }}
+    />
+</Box>
 );
 
-interface ProtectedRouteProps {
+interface ProtectedRouteProps{
     requiredRole?: string;
     children: React.ReactNode;
 }
-
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-    const { token, role } = useAuth();
-    if (!token) {
-      return <Navigate to="/sign-in" />;
-    }
-     if (requiredRole && role !== requiredRole) {
+     const { role } = useAuth();
+    if (requiredRole && role !== requiredRole) {
          return <Navigate to="/blog" />;
      }
     return <>{children}</>;
@@ -62,12 +57,12 @@ function RouterComponent() {
             ),
             children: [
                 {
-                     path: '/',
+                    path: '/',
                     element: <ProtectedRoute requiredRole="admin"><HomePage /></ProtectedRoute>, index: true
                 },
-                {
-                    path: 'user',
-                   element: <ProtectedRoute requiredRole="admin"><UserPage /></ProtectedRoute>
+                 {
+                     path: 'user',
+                    element: <ProtectedRoute requiredRole="admin"><UserPage /></ProtectedRoute>
                 },
                 {
                     path: 'blog',
@@ -96,24 +91,20 @@ function RouterComponent() {
             ),
         },
         {
-            path: '404',
-            element: <Page404 />,
-        },
-        {
             path: '*',
             element: <Navigate to="/404" replace />,
         },
     ]);
 }
-export function Router() {
+export function Router(){
     return (
         <RouterComponent />
     );
 }
-export function AppRouter() {
-    return (
-        <BrowserRouter>
-            <Router />
-        </BrowserRouter>
-    );
+export function AppRouter(){
+return(
+    <BrowserRouter>
+        <Router/>
+    </BrowserRouter>
+)
 }

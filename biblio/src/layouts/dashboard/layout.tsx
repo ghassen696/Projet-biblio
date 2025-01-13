@@ -1,7 +1,7 @@
 import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
 
 import { useState } from 'react';
-
+import { Outlet } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
@@ -17,17 +17,17 @@ import { navData } from '../config-nav-dashboard';
 import { MenuButton } from '../components/menu-button';
 import { LayoutSection } from '../core/layout-section';
 import { HeaderSection } from '../core/header-section';
-import { AccountPopover } from '../components/account-popover';
+import { AccountPopover } from 'src/layouts/components/account-popover';
 import { NotificationsPopover } from '../components/notifications-popover';
 
 // ----------------------------------------------------------------------
 
 export type DashboardLayoutProps = {
-  sx?: SxProps<Theme>;
-  children: React.ReactNode;
-  header?: {
     sx?: SxProps<Theme>;
-  };
+    children: React.ReactNode;
+    header?: {
+        sx?: SxProps<Theme>;
+    };
 };
 
 export function DashboardLayout({ sx, children, header }: DashboardLayoutProps) {

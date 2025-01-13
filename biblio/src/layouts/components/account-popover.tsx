@@ -1,9 +1,6 @@
 import type { IconButtonProps } from '@mui/material/IconButton';
-
-import { useState, useCallback } from 'react';
-
-import { SvgColor } from 'src/components/svg-color';  // Assuming SvgColor component is already created
-
+import { useState, useCallback, useRef } from 'react';
+import { SvgColor } from 'src/components/svg-color';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -13,143 +10,132 @@ import MenuList from '@mui/material/MenuList';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
-
-import { useRouter, usePathname } from 'src/routes/hooks';
-
+import { useAuth } from 'src/app';
+import { useNavigate } from 'react-router-dom';
+import { Stack } from '@mui/material';
 import { _myAccount } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
 export type AccountPopoverProps = IconButtonProps & {
-  data?: {
-    label: string;
-    href: string;
-    icon?: React.ReactNode;
-    info?: React.ReactNode;
-  }[];
+    data?: {
+        label: string;
+        href: string;
+        icon?: React.ReactNode;
+        info?: React.ReactNode;
+    }[];
 };
 
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
-  const router = useRouter();
-  const pathname = usePathname();
+    const navigate = useNavigate();
+    const { logout, token, role } = useAuth();
 
-  const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
+    const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
-  const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    setOpenPopover(event.currentTarget);
-  }, []);
+    const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+        setOpenPopover(event.currentTarget);
+    }, []);
 
-  const handleClosePopover = useCallback(() => {
-    setOpenPopover(null);
-  }, []);
+    const handleClosePopover = useCallback(() => {
+        setOpenPopover(null);
+    }, []);
 
-  const handleClickItem = useCallback(
-    (path: string) => {
-      handleClosePopover();
-      router.push(path);
-    },
-    [handleClosePopover, router]
-  );
+    const handleClickItem = useCallback(
+        (path: string) => {
+            handleClosePopover();
+            navigate(path);
+        },
+        [handleClosePopover, navigate]
+    );
 
-  const handleLogoutClick = useCallback(() => {
-    router.push('/sign-in');
-  }, [router]);
+    const handleLogoutClick = async () => {
+        try {
+           const response = await fetch('http://localhost:5000/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
 
-  const icon = (name: string) => (
-    <SvgColor width="24px" height="24px" src={`/assets/icons/navbar/${name}.svg`} />
-  );
-
-  return (
-    <>
-      <IconButton
-        onClick={handleOpenPopover}
-        sx={{
-          p: '2px',
-          width: 40,
-          height: 40,
-          background: (theme) =>
-            `conic-gradient(${theme.vars.palette.primary.light}, ${theme.vars.palette.warning.light}, ${theme.vars.palette.primary.light})`,
-          ...sx,
-        }}
-        {...other}
-      >
-        <Avatar src={_myAccount.photoURL} alt={_myAccount.displayName} sx={{ width: 1, height: 1 }}>
-          {_myAccount.displayName.charAt(0).toUpperCase()}
-        </Avatar>
-      </IconButton>
-
-      <Popover
-        open={!!openPopover}
-        anchorEl={openPopover}
-        onClose={handleClosePopover}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{
-          paper: {
-            sx: { width: 200 },
-          },
-        }}
-      >
-        <Box sx={{ p: 2, pb: 1.5 }}>
-          <Typography variant="subtitle2" noWrap>
-            {_myAccount?.displayName}
-          </Typography>
-
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {_myAccount?.email}
-          </Typography>
-        </Box>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <MenuList
-          disablePadding
-          sx={{
-            p: 1,
-            gap: 0.5,
-            display: 'flex',
-            flexDirection: 'column',
-            [`& .${menuItemClasses.root}`]: {
-              px: 1,
-              gap: 2,
-              borderRadius: 0.75,
-              color: 'text.secondary',
-              '&:hover': { color: 'text.primary' },
-              [`&.${menuItemClasses.selected}`]: {
-                color: 'text.primary',
-                bgcolor: 'action.selected',
-                fontWeight: 'fontWeightSemiBold',
-              },
-            },
-          }}
-        >
-          {data.map((option) => (
-            <MenuItem
-              key={option.label}
-              selected={option.href === pathname}
-              onClick={() => handleClickItem(option.href)}
+         if (response.ok) {
+               logout();
+           } else {
+                const errorText = await response.text()
+                console.error(`Logout error: ${errorText}`);
+                alert(`Logout error: ${errorText}`);
+             }
+        } catch (error) {
+         console.error('Error during logout:', error)
+         alert(`Logout error: ${error.message}`);
+      }
+       navigate('/sign-in');
+     };
+    if (!token) return null;
+    const icon = (name: string) => (
+        <SvgColor width="24px" height="24px" src={`/assets/icons/navbar/${name}.svg`} />
+    );
+    const anchorRef = useRef(null);
+    return (
+        <>
+            <IconButton
+              ref={anchorRef}
+                onClick={handleOpenPopover}
+                sx={{
+                    p: '2px',
+                    width: 40,
+                    height: 40,
+                    background: (theme) =>
+                        `conic-gradient(${theme.vars.palette.primary.light}, ${theme.vars.palette.warning.light}, ${theme.vars.palette.primary.light})`,
+                    ...sx,
+                }}
+                {...other}
             >
-              {option.icon}
-              {option.label}
-            </MenuItem>
-          ))}
-        </MenuList>
+                <Avatar src={_myAccount.photoURL} alt={_myAccount.displayName} sx={{ width: 1, height: 1 }}>
+                    {_myAccount.displayName.charAt(0).toUpperCase()}
+                </Avatar>
+            </IconButton>
+            <Popover
+                open={Boolean(openPopover)}
+                anchorEl={openPopover}
+                onClose={handleClosePopover}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                slotProps={{
+                    paper: {
+                        sx: { width: 200 },
+                    },
+                }}
+            >
+                <Box sx={{ my: 1.5, px: 2.5 }}>
+                    <Typography variant="subtitle2" noWrap>
+                         {token ? localStorage.getItem('username') : ''}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+                         {token ? localStorage.getItem('email') : ''}
+                    </Typography>
+                     <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+                         {token ? role : ''}
+                    </Typography>
+                </Box>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+                <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Box sx={{ p: 1 }}>
-          <Button
-            fullWidth
-            color="error"
-            size="medium"
-            variant="text"
-            onClick={handleLogoutClick}  // Handle logout on click
-            startIcon={icon('ic-lock')}  // Add icon as startIcon
-          >
-            Logout
-          </Button>
-        </Box>
-      </Popover>
-    </>
-  );
+                <Stack sx={{ p: 1 }}>
+                    <MenuItem onClick={() => {
+                        handleClosePopover();
+                      
+                    }}>
+                        Home
+                    </MenuItem>
+                </Stack>
+
+                <Divider sx={{ borderStyle: 'dashed' }} />
+
+                <MenuItem onClick={handleLogoutClick} sx={{ m: 1 }}>
+                    Logout
+                </MenuItem>
+            </Popover>
+        </>
+    );
 }
